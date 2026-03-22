@@ -156,10 +156,21 @@ export default function App() {
         - Business Equity: ${formData.business || 'None'}
         - Jewelry & Valuables: ${formData.jewelry || 'None'}
         - Other Assets: ${formData.otherAssets || 'None'}
+
         Provide a comprehensive wealth analysis with realistic INR valuations based on current Indian market rates.
-        IMPORTANT: You MUST provide a realistic estimatedTotalValue in INR (e.g., "₹12.5 Cr"). Do not leave it empty.
-        For riskScore, return a number from 0-100 (higher = more exposed).
-        For assetBreakdown, list each category with estimated value and percentage of total.
+        
+        CRITICAL: All values must be strings with appropriate currency symbols (₹) or units (Cr, L, %).
+        
+        REQUIRED FIELDS IN JSON:
+        1. estimatedTotalValue: A realistic total valuation in INR (e.g., "₹12.5 Cr"). MUST NOT BE EMPTY.
+        2. potentialDivorceLoss: Estimated loss in case of divorce without a trust (e.g., "₹6.25 Cr").
+        3. trustProtectionAmount: Amount that can be protected via a trust (e.g., "₹12.5 Cr").
+        4. projected10YearValue: Estimated value of these assets in 10 years considering 8-12% CAGR (e.g., "₹28.4 Cr").
+        5. caAnalysis: A professional summary of the wealth structure and risks.
+        6. riskScore: A number from 0-100 (higher = more exposed).
+        7. liquidityRatio: Percentage of assets that are liquid (e.g., "25%").
+        8. taxExposure: Estimated annual tax liability or percentage (e.g., "30% + Surcharge").
+        9. assetBreakdown: List each category with estimated value and percentage of total.
       `;
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
@@ -634,10 +645,10 @@ export default function App() {
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {[
-                  { label:'Total Wealth', value:aiReport.estimatedTotalValue || 'Calculating...', color:'#fff', icon:Coins, border:'rgba(255,255,255,0.08)' },
-                  { label:'Divorce Exposure', value:aiReport.potentialDivorceLoss || 'Calculating...', color:'#f87171', icon:AlertTriangle, border:'rgba(248,113,113,0.2)', bg:'rgba(248,113,113,0.04)' },
-                  { label:'Trust Protection', value:aiReport.trustProtectionAmount || 'Calculating...', color:'#b89947', icon:Lock, border:'rgba(184,153,71,0.2)', bg:'rgba(184,153,71,0.04)' },
-                  { label:'10-Year Projection', value:aiReport.projected10YearValue || 'Calculating...', color:'#4ade80', icon:TrendingUp, border:'rgba(74,222,128,0.2)', bg:'rgba(74,222,128,0.04)' },
+                  { label:'Total Wealth', value:aiReport.estimatedTotalValue || 'N/A', color:'#fff', icon:Coins, border:'rgba(255,255,255,0.08)' },
+                  { label:'Divorce Exposure', value:aiReport.potentialDivorceLoss || 'N/A', color:'#f87171', icon:AlertTriangle, border:'rgba(248,113,113,0.2)', bg:'rgba(248,113,113,0.04)' },
+                  { label:'Trust Protection', value:aiReport.trustProtectionAmount || 'N/A', color:'#b89947', icon:Lock, border:'rgba(184,153,71,0.2)', bg:'rgba(184,153,71,0.04)' },
+                  { label:'10-Year Projection', value:aiReport.projected10YearValue || 'N/A', color:'#4ade80', icon:TrendingUp, border:'rgba(74,222,128,0.2)', bg:'rgba(74,222,128,0.04)' },
                 ].map(({ label, value, color, icon: Icon, border, bg }) => (
                   <div key={label} className="p-5 rounded-2xl flex flex-col justify-between"
                     style={{ background: bg||'rgba(255,255,255,0.02)', border:`1px solid ${border}` }}>
@@ -654,12 +665,12 @@ export default function App() {
                 <div className="p-4 rounded-xl flex items-center gap-4" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)' }}>
                   <Activity className="w-4 h-4" style={{ color:'rgba(255,255,255,0.3)' }} />
                   <div><p className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color:'rgba(255,255,255,0.35)' }}>Liquidity Ratio</p>
-                    <p className="text-lg font-light text-white">{aiReport.liquidityRatio}</p></div>
+                    <p className="text-lg font-light text-white">{aiReport.liquidityRatio || 'N/A'}</p></div>
                 </div>
                 <div className="p-4 rounded-xl flex items-center gap-4" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)' }}>
                   <FileText className="w-4 h-4" style={{ color:'rgba(255,255,255,0.3)' }} />
                   <div><p className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color:'rgba(255,255,255,0.35)' }}>Tax Exposure</p>
-                    <p className="text-lg font-light text-white">{aiReport.taxExposure}</p></div>
+                    <p className="text-lg font-light text-white">{aiReport.taxExposure || 'N/A'}</p></div>
                 </div>
               </div>
               {/* Asset Breakdown */}
