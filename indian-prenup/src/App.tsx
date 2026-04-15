@@ -9,6 +9,10 @@ import {
 } from 'lucide-react';
 import { GoogleGenAI, Type } from '@google/genai';
 
+const getApiKey = () => {
+  return (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
+};
+
 type Step = 'landing' | 'assets' | 'personal' | 'analyzing' | 'report' | 'ca_deep' | 'success' | 'about' | 'contact';
 
 interface FormData {
@@ -145,7 +149,7 @@ export default function App() {
     setIsAnalyzing(true);
     nextStep('analyzing');
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ apiKey: getApiKey() });
       const prompt = `
         You are an elite Indian Wealth Manager and Chartered Accountant specializing in asset protection and private trusts.
         Analyze the following assets for an Indian client aged ${formData.age}, with annual income of ${formData.annualIncome || 'Not specified'} and liabilities of ${formData.liabilities || 'None'}:
@@ -173,7 +177,7 @@ export default function App() {
         9. assetBreakdown: List each category with estimated value and percentage of total.
       `;
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -207,7 +211,8 @@ export default function App() {
         }
       });
       if (response.text) {
-        setAiReport(JSON.parse(response.text) as AIReport);
+        const cleanedText = response.text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        setAiReport(JSON.parse(cleanedText) as AIReport);
         nextStep('report');
       } else throw new Error("No response text");
     } catch (error) {
@@ -228,7 +233,7 @@ export default function App() {
     setIsCALoading(true);
     nextStep('ca_deep');
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ apiKey: getApiKey() });
       const prompt = `
         You are a senior Chartered Accountant and legal expert in India specializing in wealth management, taxation, and trust law.
         Client Profile:
@@ -242,7 +247,7 @@ export default function App() {
         Provide an exhaustive CA-grade wealth analysis. Be specific, professional, and practical. Use Indian legal and financial terminology.
       `;
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -264,7 +269,8 @@ export default function App() {
         }
       });
       if (response.text) {
-        setCAReport(JSON.parse(response.text) as CAReport);
+        const cleanedText = response.text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        setCAReport(JSON.parse(cleanedText) as CAReport);
       } else throw new Error("No CA report");
     } catch (error) {
       console.error("CA analysis failed:", error);
@@ -296,11 +302,11 @@ export default function App() {
     setChatInput('');
     setIsChatLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ apiKey: getApiKey() });
       const history = chatMessages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
       history.push({ role: 'user', parts: [{ text: newUserMsg.text }] });
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: history,
         config: {
           systemInstruction: `You are an elite advisor specializing in Indian prenuptial agreements, asset protection, and wealth management. When asked who you are or what you do, explain that you are a specialized advisory service dedicated to helping Indian clients secure their assets through prenups, trusts, and legal structuring. NEVER mention Google, Gemini, or that you are an AI model developed by any specific company. Answer questions concisely, professionally, and with specific Indian legal/financial references. Always recommend consulting a qualified CA or lawyer for implementation.`
