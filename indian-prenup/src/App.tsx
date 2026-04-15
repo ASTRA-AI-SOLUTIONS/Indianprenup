@@ -354,6 +354,13 @@ export default function App() {
         </svg>
       </div>
 
+      {/* SEBI IA Code */}
+      <div className="fixed top-6 left-6 z-50 pointer-events-none">
+        <p className="text-[10px] uppercase tracking-widest text-white/40 font-mono">
+          SEBI IA: <span className="text-[#b89947]">SLI990602584</span>
+        </p>
+      </div>
+
       {/* Toast */}
       <AnimatePresence>
         {recentActivity && !['assets', 'personal', 'analyzing'].includes(currentStep) && (
