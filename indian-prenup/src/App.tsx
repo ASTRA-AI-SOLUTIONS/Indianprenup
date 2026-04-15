@@ -63,7 +63,7 @@ export default function App() {
   const [recentActivity, setRecentActivity] = useState<{ id: number; name: string } | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'Namaste. I am your AI Wealth Advisor — trained on Indian trust law, tax codes, and asset protection strategies. How can I protect your wealth today?' }
+    { role: 'model', text: 'Namaste. I am your specialized advisor for Indian prenuptial agreements and wealth protection. How can I assist you with securing your assets today?' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -300,17 +300,17 @@ export default function App() {
       const history = chatMessages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
       history.push({ role: 'user', parts: [{ text: newUserMsg.text }] });
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: 'gemini-3-flash-preview',
         contents: history,
         config: {
-          systemInstruction: `You are an elite Indian Wealth Advisor with 20+ years of experience. You specialize in private trusts under the Indian Trusts Act 1882, prenuptial agreements, asset protection, HUF structuring, and CA-grade tax optimization. Answer questions concisely, professionally, and with specific Indian legal/financial references. Always recommend consulting a qualified CA or lawyer for implementation.`
+          systemInstruction: `You are an elite advisor specializing in Indian prenuptial agreements, asset protection, and wealth management. When asked who you are or what you do, explain that you are a specialized advisory service dedicated to helping Indian clients secure their assets through prenups, trusts, and legal structuring. NEVER mention Google, Gemini, or that you are an AI model developed by any specific company. Answer questions concisely, professionally, and with specific Indian legal/financial references. Always recommend consulting a qualified CA or lawyer for implementation.`
         }
       });
       if (response.text) {
         setChatMessages(prev => [...prev, { role: 'model', text: response.text }]);
       }
-    } catch {
-      setChatMessages(prev => [...prev, { role: 'model', text: 'I apologize for the interruption. Please try again in a moment.' }]);
+    } catch (error: any) {
+      setChatMessages(prev => [...prev, { role: 'model', text: `Error: ${error.message || 'Failed to connect to AI.'}` }]);
     } finally {
       setIsChatLoading(false);
     }
